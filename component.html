@@ -1,0 +1,28 @@
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<div id="app">
+    {{ parentHeader.label+" "+parentHeader.globalCount }}
+    <hr />
+
+    <rating-counter v-bind:parent="parentHeader" v-on:increment="parentHeader.globalCount+=$event"></rating-counter>
+</div>
+
+<script>
+    Vue.component('rating-counter', {
+        template: `<div>
+                    <button v-on:click="$emit('increment', -1);">Thumbs Down</button>
+                    <button v-on:click="$emit('increment', 1);">Thumbs Up</button>
+                </div>`,
+
+    })
+
+    new Vue({
+        el: '#app',
+        data: {
+            parentHeader: {
+                label: "Counter is at: ",
+                globalCount: 0
+            }
+        }
+    })
+</script>
