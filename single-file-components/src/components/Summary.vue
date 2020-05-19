@@ -10,16 +10,15 @@
 
 <script>
 export default {
-    name: "sum",
-    data: function () {
-        return {
-            greeting: "Hello",
-        };
-    },
-    props: ["ratings"],
-    methods: {},
-    created: function () {},
+    name: "Summary",
+    props: ["ratings"]
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.summaryContainer {
+    float: left;
+    width: 50%;
+    font-size: 13px;
+}
+</style>
