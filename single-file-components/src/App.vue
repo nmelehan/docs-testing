@@ -9,10 +9,6 @@
                         v-bind:key="index"
                         v-bind:weight="index"
                         v-bind:enabled="enabled"
-                        v-bind:currentRating="currentRating"
-                        v-on:lightUp="lightUpHandler"
-                        v-on:lightDown="lightDownHandler"
-                        v-on:rate="rateHandler"
                     ></Star>
                 </div>
             </div>
@@ -25,12 +21,13 @@
 import Star from "./components/Star";
 import Summary from "./components/Summary";
 
+import { eventBus } from "./main";
+
 export default {
     name: "App",
     components: { Star, Summary },
     data: function () {
         return {
-            currentRating: 0,
             bigRating: "&#128566;", // Emoji: 😶
             enabled: true,
             ratings: [
@@ -57,10 +54,11 @@ export default {
             ],
         };
     },
-    methods: {
-        lightUpHandler: function (weight) {
-            this.currentRating = weight;
-
+    created: function () {
+        if (localStorage.ratings) {
+            this.ratings = JSON.parse(localStorage.ratings);
+        }
+        eventBus.$on("lightUp", (weight) => {
             // Display different emojis based on the weight
             if (weight <= 2) {
                 this.bigRating = "&#128549;"; // Emoji: 😥
@@ -71,15 +69,11 @@ export default {
             if (weight > 4) {
                 this.bigRating = "&#128579;"; // Emoji: 🙃
             }
-        },
-        lightDownHandler: function () {
-            // Reset on mouse away
-            this.currentRating = 0;
+        });
+        eventBus.$on("lightDown", () => {
             this.bigRating = "&#128566;"; // Emoji: 😶
-        },
-        rateHandler: function (weight) {
-            this.currentRating = weight;
-
+        });
+        eventBus.$on("rate", (weight) => {
             // Finding the relecant rating and incrementing the cast votes
             let rating = this.ratings.find((obj) => obj.weight == weight);
             rating.votes++;
@@ -89,12 +83,7 @@ export default {
 
             // Saves the votes to the browser localStorage
             localStorage.setItem("ratings", JSON.stringify(this.ratings));
-        },
-    },
-    created: function () {
-        if (localStorage.ratings) {
-            this.ratings = JSON.parse(localStorage.ratings);
-        }
+        });
     },
 };
 </script>

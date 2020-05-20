@@ -8,20 +8,24 @@
 </template>
 
 <script>
+import { eventBus } from "../main";
+
 export default {
     name: "Star",
     data: function () {
         return {
             hover: false,
+            active: false,
         };
     },
-    props: ["weight", "enabled", "currentRating"],
+    props: ["weight", "enabled"],
     methods: {
         getClass: function () {
             var baseClass = "icon-star";
-
-            // Adds the hover class if you're hovering over the component or you are hovering over a star with greater weight
-            if (this.hover || this.currentRating >= this.weight) {
+            if (this.active) {
+                baseClass += " active";
+            }
+            if (this.hover) {
                 baseClass += " hover";
             }
             return baseClass;
@@ -29,30 +33,43 @@ export default {
         mouseoverHandler: function () {
             // Makes sure stars are not lighting up after vote is cast
             if (this.enabled) {
-                // Emits the lightup event with the weight as a parameter
-                this.$emit("lightUp", this.weight);
-                // Enables hover class
-                this.hover = true;
+                // Emits the lightUp event with the weight as a parameter
+                eventBus.$emit("lightUp", this.weight);
             }
         },
         mouseleaveHandler: function () {
             // Makes sure stars are not lighting up after vote is cast
             if (this.enabled) {
                 // Emits the lightDown event
-                this.$emit("lightDown", this.weight);
-                // Removes hover class
-                this.hover = false;
+                eventBus.$emit("lightDown");
             }
         },
         clickHandler: function () {
             // Makes sure you only vote if you haven't voted yet
             if (this.enabled) {
                 // Emits the rate event with the weight as parameter
-                this.$emit("rate", this.weight);
+                eventBus.$emit("rate", this.weight);
             } else {
                 alert("Already voted");
             }
         },
+    },
+    created: function () {
+        eventBus.$on("lightUp", (targetWeight) => {
+            if (targetWeight >= this.weight) {
+                this.hover = true;
+            } else {
+                this.hover = false;
+            }
+        });
+        eventBus.$on("lightDown", () => {
+            this.hover = false;
+        });
+        eventBus.$on("rate", (targetWeight) => {
+            if (targetWeight >= this.weight) {
+                this.active = true;
+            }
+        });
     },
 };
 </script>
@@ -65,5 +82,8 @@ i.icon-star {
 }
 i.icon-star.hover {
     color: yellow;
+}
+i.icon-star.active {
+    color: #737373;
 }
 </style>
